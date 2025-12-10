@@ -1,10 +1,9 @@
-// Automatically choose local backend OR deployed backend
-export const API_BASE_URL =
-  window.location.hostname === "localhost"
-    ? "http://localhost:5000"
-    : "https://mern-auth-backend-seven-theta.vercel.app";
+// api.js
+import axios from "axios";
 
-// Reusable API wrapper
+export const API_BASE_URL =
+  process.env.REACT_APP_API_URL || "http://localhost:5000";
+
 export const api = async (endpoint, options = {}) => {
   try {
     const response = await fetch(`${API_BASE_URL}${endpoint}`, {
@@ -14,18 +13,24 @@ export const api = async (endpoint, options = {}) => {
       },
       ...options,
     });
-
-    // Try to parse json, avoid crash on HTML error pages
     const data = await response.json().catch(() => ({}));
-
     return { res: response, data };
   } catch (err) {
     console.error("API Error:", err);
-    return {
-      res: null,
-      data: { message: "Network or server error" },
-    };
+    return { res: null, data: { message: "Network or server error" } };
   }
 };
 
-export default API_BASE_URL;
+export const signup = (username, email, password) => {
+  return api("/api/auth/register", {
+    method: "POST",
+    body: JSON.stringify({ username, email, password }),
+  });
+};
+
+export const login = (email, password) => {
+  return api("/api/auth/login", {
+    method: "POST",
+    body: JSON.stringify({ email, password }),
+  });
+};
