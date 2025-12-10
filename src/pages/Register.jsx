@@ -65,16 +65,20 @@ export default function Register() {
 
     try {
       setLoading(true);
-      const res = await fetch("https://mern-auth-backend-seven-theta.vercel.app/auth/register", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          name: form.name,
-          username: form.username,
-          email: form.email,
-          password: form.password,
-        }),
-      });
+      const res = await fetch(
+        "https://mern-auth-backend-seven-theta.vercel.app/api/auth/register",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            name: form.name,
+            username: form.username,
+            email: form.email,
+            password: form.password,
+          }),
+        }
+      );
+
 
       const data = await res.json().catch(() => ({}));
       const serverMsg =
