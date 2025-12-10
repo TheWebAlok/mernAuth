@@ -1,32 +1,31 @@
-import axios from "axios";
-
-// Auto-select backend (local OR vercel)
+// Automatically choose local backend OR deployed backend
 export const API_BASE_URL =
   window.location.hostname === "localhost"
     ? "http://localhost:5000"
     : "https://mern-auth-backend-seven-theta.vercel.app";
 
-// Axios instance
-const API = axios.create({
-  baseURL: API_BASE_URL,
-  headers: { "Content-Type": "application/json" },
-});
+// Reusable API wrapper
+export const api = async (endpoint, options = {}) => {
+  try {
+    const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+      headers: {
+        "Content-Type": "application/json",
+        ...(options.headers || {}),
+      },
+      ...options,
+    });
 
-// AUTH APIs
-export const signup = (username, email, password) => {
-  return API.post("/api/auth/register", { username, email, password });
-};
+    // Try to parse json, avoid crash on HTML error pages
+    const data = await response.json().catch(() => ({}));
 
-export const login = (email, password) => {
-  return API.post("/api/auth/login", { email, password });
-};
-
-export const forgotPassword = (emailOrUsername) => {
-  return API.post("/api/auth/forgot-password", { emailOrUsername });
-};
-
-export const resetPassword = (userId, newPassword) => {
-  return API.post("/api/auth/reset-password", { userId, newPassword });
+    return { res: response, data };
+  } catch (err) {
+    console.error("API Error:", err);
+    return {
+      res: null,
+      data: { message: "Network or server error" },
+    };
+  }
 };
 
 export default API_BASE_URL;
