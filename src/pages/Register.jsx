@@ -66,7 +66,7 @@ export default function Register() {
     try {
       setLoading(true);
       const res = await fetch(
-        "https://mern-auth-backend-seven-theta.vercel.app/auth/register",
+        "https://mern-auth-backend-seven-theta.vercel.app/api/auth/register",
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
