@@ -51,7 +51,7 @@ export default function Login() {
       setLoading(true);
 
       const res = await fetch(
-        "https://mern-auth-backend-seven-theta.vercel.app/api/auth/login",
+        "https://mern-auth-backend-seven-theta.vercel.app/auth/login",
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
