@@ -68,7 +68,6 @@ export default function Register() {
     try {
       setLoading(true);
 
-      // use api wrapper from api.js (auto selects localhost or vercel)
       const { res, data } = await api("/api/auth/register", {
         method: "POST",
         body: JSON.stringify({
