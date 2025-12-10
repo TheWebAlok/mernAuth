@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import "./Register.css";
+import { api } from "../api"; // adjust path if api.js is in a different folder
 
 export default function Register() {
   const navigate = useNavigate();
@@ -52,6 +53,7 @@ export default function Register() {
   const handleRegister = async (e) => {
     e.preventDefault();
 
+    // client-side validation
     if (form.password.length < 6) {
       setError("Password should be at least 6 characters.");
       showToast("Password should be at least 6 characters.", "error");
@@ -65,35 +67,33 @@ export default function Register() {
 
     try {
       setLoading(true);
-      const res = await fetch(
-        "https://mern-auth-backend-seven-theta.vercel.app/api/auth/register",
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            name: form.name,
-            username: form.username,
-            email: form.email,
-            password: form.password,
-          }),
-        }
-      );
-      
 
-      const data = await res.json().catch(() => ({}));
+      // use api wrapper from api.js (auto selects localhost or vercel)
+      const { res, data } = await api("/api/auth/register", {
+        method: "POST",
+        body: JSON.stringify({
+          name: form.name,
+          username: form.username,
+          email: form.email,
+          password: form.password,
+        }),
+      });
+
       const serverMsg =
-        data?.message || (res.ok ? "Registration completed." : "Registration failed.");
+        data?.message || (res && res.ok ? "Registration completed." : "Registration failed.");
 
-      if (res.ok) {
+      if (res && res.ok) {
         showToast(serverMsg, "success");
 
+        // clear form
         setForm({ name: "", username: "", email: "", password: "", confirm: "" });
 
+        // redirect after short delay (1.2s)
         navTimerRef.current = setTimeout(() => {
           navigate("/login");
         }, 1200);
       } else {
-        showToast(serverMsg, "error");
+        showToast(serverMsg || "Registration failed.", "error");
       }
 
       setLoading(false);

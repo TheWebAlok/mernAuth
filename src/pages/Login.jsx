@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import "./Login.css";
+import { api } from "../api"; // <-- adjust path if api.js is elsewhere
 
 export default function Login() {
   const navigate = useNavigate();
@@ -50,21 +51,18 @@ export default function Login() {
     try {
       setLoading(true);
 
-      const res = await fetch(
-        "https://mern-auth-backend-seven-theta.vercel.app/api/auth/register",
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(form),
-        }
-      );
+      // use api wrapper (auto selects localhost or vercel)
+      const { res, data } = await api("/api/auth/login", {
+        method: "POST",
+        body: JSON.stringify({
+          email: form.email,
+          password: form.password,
+        }),
+      });
 
+      const serverMsg = data?.message || (res && res.ok ? "Success" : "Login failed");
 
-      const data = await res.json().catch(() => ({}));
-
-      const serverMsg = data?.message || (res.ok ? "Success" : "Login failed");
-
-      if (res.ok && data?.token) {
+      if (res && res.ok && data?.token) {
         // save token
         localStorage.setItem("token", data.token);
 
@@ -73,7 +71,7 @@ export default function Login() {
 
         // redirect after short delay (1.2s)
         navTimerRef.current = setTimeout(() => {
-          navigate("/");
+          navigate("/"); // change this if you want a different landing page
         }, 1200);
       } else {
         showToast(serverMsg || "Invalid credentials", "error");
@@ -121,6 +119,7 @@ export default function Login() {
                 onChange={handleChange}
                 required
                 className="input"
+                value={form.email}
               />
 
               <div className="input-wrap">
@@ -131,6 +130,7 @@ export default function Login() {
                   onChange={handleChange}
                   required
                   className="input"
+                  value={form.password}
                 />
 
                 <button
